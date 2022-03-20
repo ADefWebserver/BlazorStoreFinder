@@ -1,8 +1,14 @@
 using AzureMapsControl.Components;
+using BlazorStoreFinder;
 using BlazorStoreFinder.Data;
+using Microsoft.EntityFrameworkCore;
 using Syncfusion.Blazor;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddDbContext<BlazorStoreFinderContext>(options =>
+options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"),
+x => x.UseNetTopologySuite()));
 
 // Add services to the container.
 builder.Services.AddRazorPages();
