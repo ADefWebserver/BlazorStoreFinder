@@ -1,0 +1,71 @@
+﻿@page "/mapimagekey"
+@using System.Text;
+<input type="text" placeholder="Latitude" @bind="Latitude" />
+<input type="text" placeholder="Longitude" @bind="Longitude" />
+<input type="text" placeholder="SubscriptionKey" @bind="SubscriptionKey" />
+<br />
+<br />
+<button class="btn btn-success" @onclick="GetTile">Get Tile</button>
+<br />
+<br />
+@if (isLoading)
+{
+    <div class="spinner-border text-primary" role="status"></div>
+}
+<br />
+@if (PngImage != "")
+{
+    <div class="row">
+        <div style="width: 300px; height: 300px;">
+            <img src="@PngImage" height="300" width="300">
+        </div>
+    </div>
+}
+@code {
+    string PngImage = string.Empty;
+    bool isLoading = false;
+    string SubscriptionKey = "";
+
+    // Location of Los Angeles
+    string Latitude = "34.0522";
+    string Longitude = "-118.2437";
+
+    public async Task GetTile()
+    {
+        PngImage = "";
+        isLoading = true;
+
+        // Create a HTTP Client to make the REST call
+        using (var client = new System.Net.Http.HttpClient())
+        {
+            // Build the URL
+            StringBuilder sb = new StringBuilder();
+
+            // Request a PNG image
+            sb.Append("https://atlas.microsoft.com/map/static/png?");
+            // Pass the Subscription Key
+            sb.Append($"subscription-key={SubscriptionKey}&");
+            // Specify the api version, layer type, and zoom level
+            sb.Append("api-version=1.0&layer=basic&style=main&zoom=10&");
+            // Pass the Latitude and Longitude
+            sb.Append($"&center={Longitude},%20{Latitude}");
+            // Request that a pin be placed at the Latitude and Longitude
+            sb.Append($"&pins=default%7C%7C{Longitude}+{Latitude}");
+
+            // Set the URL
+            var url = new Uri(sb.ToString());
+
+            // Call Azure maps and get the repsonse
+            var Response = await client.GetAsync(url);
+
+            // Read the response
+            var responseContent = await Response.Content.ReadAsByteArrayAsync();
+
+            // Convert the reponse to an image
+            PngImage = $"data:image/png;base64,{Convert.ToBase64String(responseContent)}";
+
+            isLoading = false;
+            StateHasChanged();
+        }
+    }
+}

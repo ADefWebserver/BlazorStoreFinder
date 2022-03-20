@@ -1,0 +1,18 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UserSecretsId>5d8fc5cb-1458-4a31-b26a-fdf67f533b85</UserSecretsId>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Syncfusion.Blazor" Version="19.4.0.56" />
+    <PackageReference Include="Syncfusion.Blazor.Themes" Version="19.4.0.56" />
+	<PackageReference Include="AzureMapsControl.Components" Version="1.11.0" />
+	<PackageReference Include="Darnton.Blazor.DeviceInterop" Version="0.1.2" />
+	<PackageReference Include="Microsoft.Identity.Client" Version="4.42.1" />
+  </ItemGroup>
+
+</Project>

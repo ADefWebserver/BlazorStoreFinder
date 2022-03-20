@@ -1,0 +1,46 @@
+﻿@page "/azuremapdisplay"
+@using AzureMapsControl.Components.Map
+@using Darnton.Blazor.DeviceInterop.Geolocation;
+@inject IGeolocationService GeolocationService
+
+<AzureMap Id="map"
+          CameraOptions="new CameraOptions { Zoom = 10 }"
+          StyleOptions="new StyleOptions { ShowLogo = false }"
+          EventActivationFlags="MapEventActivationFlags.None().Enable(MapEventType.Ready)"
+          TrafficOptions="new AzureMapsControl.Components.Traffic.TrafficOptions {
+                            Incidents = false,
+                            Flow = AzureMapsControl.Components.Traffic.TrafficFlow.Relative }"
+          OnReady="OnMapReadyAsync" />
+
+@code {
+    protected GeolocationResult? CurrentPositionResult { get; set; }
+
+    public async Task OnMapReadyAsync(MapEventArgs eventArgs)
+    {
+        // Get current location
+        // will cause a popup to show to ask permission
+        CurrentPositionResult = await GeolocationService.GetCurrentPosition();
+
+        if (CurrentPositionResult.IsSuccess)
+        {
+            // Get latitude and longitude
+            string? CurrentLatitude =
+            CurrentPositionResult.Position?.Coords?.Latitude.ToString("F2");
+
+            string? CurrentLongitude =
+            CurrentPositionResult.Position?.Coords?.Longitude.ToString("F2");
+
+            if (CurrentLatitude != null && CurrentLongitude != null)
+            {
+                // Set the latitude and longitude as the map camera center
+                await eventArgs.Map.SetCameraOptionsAsync(
+                    options => options.Center =
+                    new AzureMapsControl.Components.Atlas.Position
+                    (Convert.ToDouble(CurrentLongitude), Convert.ToDouble(CurrentLatitude)));
+
+                // Enable Traffic and set options
+                await eventArgs.Map.SetTrafficOptionsAsync(options => options.Incidents = true);
+            }
+        }
+    }
+}

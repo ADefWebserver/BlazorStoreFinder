@@ -1,0 +1,107 @@
+﻿@page "/mapimageauthtoken"
+@using System.Text;
+@using Darnton.Blazor.DeviceInterop.Geolocation;
+@inject IGeolocationService GeolocationService
+
+@if (CurrentPositionResult != null)
+{
+    <div class="row">
+        <div style="width: 300px; height: 300px;">
+            <img src="@PngImage" height="300" width="300">
+        </div>
+    </div>
+}
+else
+{
+    @if (isLoading)
+    {
+        <div class="spinner-border text-primary" role="status"></div>
+    }
+}
+
+@code {
+    string PngImage = string.Empty;
+    bool isLoading = true;
+    protected GeolocationResult? CurrentPositionResult { get; set; }
+    string Latitude = "";
+    string Longitude = "";
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            // Get current location
+            // will cause a popup to show to ask permission
+            CurrentPositionResult = await GeolocationService.GetCurrentPosition();
+
+            if (CurrentPositionResult.IsSuccess)
+            {
+                // Get latitude and longitude
+                string? CurrentLatitude =
+                CurrentPositionResult.Position?.Coords?.Latitude.ToString("F2");
+
+                string? CurrentLongitude =
+                CurrentPositionResult.Position?.Coords?.Longitude.ToString("F2");
+
+                // Set latitude and longitude
+                // (to be consumed by GetTile() method)
+                if (CurrentLatitude != null && CurrentLongitude != null)
+                {
+                    Latitude = Convert.ToDouble(CurrentLatitude).ToString();
+                    Longitude = Convert.ToDouble(CurrentLongitude).ToString();
+                }
+
+                // Call GetTile() method to get the PNG image
+                PngImage = await GetTile();
+
+                isLoading = false;
+                StateHasChanged();
+            }
+        }
+    }
+
+    public async Task<string> GetTile()
+    {
+        String PngImage = "";
+
+        // Create a HTTP Client to make the REST call
+        using (var client = new System.Net.Http.HttpClient())
+        {
+            // Get a Access Token from AuthService
+            var AccessToken = await AuthService.GetAccessToken();
+
+            client.DefaultRequestHeaders.Accept.Clear();
+            // Pass the Azure Maps Client Id
+            client.DefaultRequestHeaders.Add("x-ms-client-id", AuthService.ClientId);
+            // Pass the Access Token in the auth header
+            client.DefaultRequestHeaders.Authorization =
+            new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", AccessToken);
+
+            // Build the URL
+            StringBuilder sb = new StringBuilder();
+
+            // Request a PNG image
+            sb.Append("https://atlas.microsoft.com/map/static/png?");
+            // Specify the api version, layer type, and zoom level
+            sb.Append("api-version=1.0&layer=basic&style=main&zoom=12&");
+            // Pass the Latitude and Longitude
+            sb.Append($"&center={Longitude},%20{Latitude}");
+            // Request that a pin be placed at the Latitude and Longitude
+            sb.Append($"&pins=default%7C%7C{Longitude}+{Latitude}");
+
+            // Set the URL
+            var url = new Uri(sb.ToString());
+
+            // Call Azure maps and get the repsonse
+            var Response = await client.GetAsync(url);
+
+            // Read the response
+            var responseContent = await Response.Content.ReadAsByteArrayAsync();
+
+            // Convert the reponse to an image
+            PngImage = $"data:image/png;base64,{Convert.ToBase64String(responseContent)}";
+        }
+
+        return PngImage;
+    }
+}
