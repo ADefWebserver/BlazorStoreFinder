@@ -10,7 +10,7 @@ CREATE TABLE [dbo].[StoreLocations](
 	[LocationLatitude] [nvarchar](50) NOT NULL,
 	[LocationLongitude] [nvarchar](50) NOT NULL,
 	[LocationAddress] [nvarchar](250) NOT NULL,
-	[LocationData] [geometry] NOT NULL,
+	[LocationData] [geography] NOT NULL,
 PRIMARY KEY CLUSTERED 
 (
 	[Id] ASC

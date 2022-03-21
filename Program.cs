@@ -1,6 +1,5 @@
 using AzureMapsControl.Components;
 using BlazorStoreFinder;
-using BlazorStoreFinder.Data;
 using Microsoft.EntityFrameworkCore;
 using Syncfusion.Blazor;
 
@@ -13,7 +12,9 @@ x => x.UseNetTopologySuite()));
 // Add services to the container.
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
-builder.Services.AddSingleton<WeatherForecastService>();
+
+// Add StoreLocationService
+builder.Services.AddScoped<StoreLocationService>();
 
 // Add Syncfusion
 builder.Services.AddSyncfusionBlazor(options => { options.IgnoreScriptIsolation = true; });

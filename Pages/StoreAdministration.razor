@@ -1,0 +1,135 @@
+﻿@page "/storeadmin"
+@using System.Text;
+@using NetTopologySuite.Geometries
+@using Newtonsoft.Json
+@inject StoreLocationService _StoreLocationService
+@*
+    Using OwningComponentBase ensures that the service and related services
+    that share its scope are disposed with the component.
+    Otherwise DbContext in ForecastService will live for the life of the
+    connection, which may be problematic if clients stay
+    connected for a long time.
+    We access WeatherForecastService using @Service
+*@
+@inherits OwningComponentBase<StoreLocationService>
+<h3>Store Administration</h3>
+<input type="text" placeholder="Location Name" @bind="LocationName" />
+<br />
+<input type="text" placeholder="Location Address" @bind="LocationAddress" />
+<br />
+<br />
+<button class="btn btn-success" @onclick="Save">Save</button>
+<br />
+<br />
+@if (storelocations == null)
+{
+    <!-- Show this if no data... yet... -->
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <!-- Table header -->
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Address</th>
+                <th>Latitude</th>
+                <th>Longitude</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Show the store locations -->
+            @foreach (var store in storelocations)
+            {
+                <tr>
+                    <td>@store.LocationName</td>
+                    <td>@store.LocationAddress</td>
+                    <td>@store.LocationLatitude</td>
+                    <td>@store.LocationLongitude</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+@code {
+    string LocationName = "Store One";
+    string LocationAddress = "Los Angeles, CA";
+    List<StoreLocations> storelocations = new List<StoreLocations>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        // We access StoreLocationService using @Service
+        storelocations = await @Service.GetStoreLocations();
+    }
+
+    public async Task Save()
+    {
+        // Geocode address
+        Coordinate coordinate = await GeocodeAddress(LocationAddress);
+
+        // Crate a new store location
+        StoreLocations store = new StoreLocations();
+        store.LocationName = LocationName;
+        store.LocationAddress = LocationAddress;
+        store.LocationLatitude = coordinate.Y.ToString();
+        store.LocationLongitude = coordinate.X.ToString();
+        store.LocationData = new Point(coordinate) { SRID = 4326 };
+        
+        // Save a new store location
+        var result = await @Service.AddStoreLocation(store);
+
+        // Reload the store locations
+        storelocations = await @Service.GetStoreLocations();
+    }
+    
+    // Utility
+
+    public async Task<Coordinate> GeocodeAddress(string address)
+    {      
+        Coordinate coordinate = new Coordinate();
+        
+        // Create a HTTP Client to make the REST call
+        using (var client = new System.Net.Http.HttpClient())
+        {
+            // Get a Access Token from AuthService
+            var AccessToken = await AuthService.GetAccessToken();
+
+            client.DefaultRequestHeaders.Accept.Clear();
+            client.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
+            // Pass the Azure Maps Client Id
+            client.DefaultRequestHeaders.Add("x-ms-client-id", AuthService.ClientId);
+            // Pass the Access Token in the auth header
+            client.DefaultRequestHeaders.Authorization =
+            new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", AccessToken);    
+            
+            // Build the URL
+            StringBuilder sb = new StringBuilder();
+
+            // Request a address search
+            // See: https://docs.microsoft.com/en-us/rest/api/maps/search/get-search-address
+            sb.Append("https://atlas.microsoft.com/search/address/json?");
+            // Specify the api version and language
+            sb.Append("&api-version=1.0&language=en-US");
+            // Pass address
+            sb.Append($"&query={address}");
+
+            // Set the URL
+            var url = new Uri(sb.ToString());
+
+            // Call Azure maps and get the repsonse
+            var Response = await client.GetAsync(url);
+
+            // Read the response
+            var responseContent = await Response.Content.ReadAsStringAsync();
+            var AddressResult = JsonConvert.DeserializeObject<SearchAddressResult>(responseContent);
+            
+            // Create coordinate
+            coordinate = new Coordinate(
+                Convert.ToDouble(AddressResult.results.FirstOrDefault()?.position.lon),
+                Convert.ToDouble(AddressResult.results.FirstOrDefault()?.position.lat));
+        }
+
+        return coordinate;
+    }
+}
