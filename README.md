@@ -7,7 +7,7 @@
 - Create Database
 - Run script in **!SQL** folder
 - Update **DefaultConnection** connection in **appsettings.json**
-- Create Azure Maps account (See: [Creating Azure Maps Applications In Blazor](https://blazorhelpwebsite.com/ViewBlogPost/59))
+- Create Azure Maps account and setup AAD (Azure Active Directory) Authentication (See: [Creating Azure Maps Applications In Blazor](https://blazorhelpwebsite.com/ViewBlogPost/59))
 - Update **AzureMaps** settings in **appsettings.json**
 
 ## Links
