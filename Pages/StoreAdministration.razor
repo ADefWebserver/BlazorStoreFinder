@@ -1,4 +1,9 @@
 ﻿@page "/storeadmin"
+@using Syncfusion.Blazor.Grids
+@using Syncfusion.Blazor.Calendars
+@using Syncfusion.Blazor.DropDowns
+@using Syncfusion.Blazor.Inputs
+@using Syncfusion.Blazor.Popups
 @using System.Text;
 @using NetTopologySuite.Geometries
 @using Newtonsoft.Json
@@ -6,61 +11,72 @@
 @*
     Using OwningComponentBase ensures that the service and related services
     that share its scope are disposed with the component.
-    Otherwise DbContext in ForecastService will live for the life of the
+    Otherwise DbContext in StoreLocationService will live for the life of the
     connection, which may be problematic if clients stay
     connected for a long time.
-    We access WeatherForecastService using @Service
+    We access StoreLocationService using @Service
 *@
 @inherits OwningComponentBase<StoreLocationService>
 <h3>Store Administration</h3>
-<input type="text" placeholder="Location Name" @bind="LocationName" />
-<br />
-<input type="text" placeholder="Location Address" @bind="LocationAddress" />
-<br />
-<br />
-<button class="btn btn-success" @onclick="Save">Save</button>
-<br />
-<br />
-@if (storelocations == null)
-{
-    <!-- Show this if no data... yet... -->
-    <p><em>Loading...</em></p>
-}
-else
-{
-    <!-- Table header -->
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Name</th>
-                <th>Address</th>
-                <th>Latitude</th>
-                <th>Longitude</th>
-            </tr>
-        </thead>
-        <tbody>
-            <!-- Show the store locations -->
-            @foreach (var store in storelocations)
-            {
-                <tr>
-                    <td>@store.LocationName</td>
-                    <td>@store.LocationAddress</td>
-                    <td>@store.LocationLatitude</td>
-                    <td>@store.LocationLongitude</td>
-                </tr>
-            }
-        </tbody>
-    </table>
-}
+
+<div class="col-lg-12 control-section">
+    <div class="content-wrapper">
+        <div class="row">
+            <SfGrid DataSource="@storelocations" Toolbar="@(new List<string>() { "Add", "Delete", "Cancel" })" AllowPaging="true">
+                <GridEvents OnActionBegin="ActionBeginHandler" TValue="StoreLocations"></GridEvents>
+                <GridEditSettings AllowAdding="true" AllowDeleting="true" Mode="@EditMode.Dialog" Dialog="DialogParams">
+                    <Template>
+                        @{
+                            var Store = (context as StoreLocations);
+                        }
+                        <div>
+                            <div class="form-row">
+                                <div class="form-group col-md-12">
+                                    <SfTextBox ID="Location Name" @bind-Value="@(Store.LocationName)" TValue="string" FloatLabelType="FloatLabelType.Always" Placeholder="Location Name"></SfTextBox>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group col-md-12">
+                                    <SfTextBox ID="Address" @bind-Value="@(Store.LocationAddress)" TValue="string" FloatLabelType="FloatLabelType.Always" Placeholder="Address"></SfTextBox>
+                                </div>
+                            </div>
+                        </div>
+                    </Template>
+                </GridEditSettings>
+                <GridColumns>
+                    <GridColumn Field=@nameof(StoreLocations.Id) HeaderText="Id" IsPrimaryKey="true" ValidationRules="@(new ValidationRules{ Number=true})" TextAlign="TextAlign.Left" Width="50"></GridColumn>
+                    <GridColumn Field=@nameof(StoreLocations.LocationName) HeaderText="Location Name" ValidationRules="@(new ValidationRules{ Required=true})" Width="150"></GridColumn>
+                    <GridColumn Field=@nameof(StoreLocations.LocationAddress) HeaderText="Address" ValidationRules="@(new ValidationRules{ Required=true})"></GridColumn>
+                    <GridColumn Field=@nameof(StoreLocations.LocationLatitude) HeaderText="Latitude" Width="150"></GridColumn>
+                    <GridColumn Field=@nameof(StoreLocations.LocationLongitude) HeaderText="Longitude" Width="150"></GridColumn>
+                </GridColumns>
+            </SfGrid>
+        </div>
+    </div>
+</div>
+
 @code {
-    string LocationName = "Store One";
-    string LocationAddress = "Los Angeles, CA";
+    string LocationName = "";
+    string LocationAddress = "";
     List<StoreLocations> storelocations = new List<StoreLocations>();
+
+    private Boolean Check = false;
+    private DialogSettings DialogParams = new DialogSettings { MinHeight = "400px", Width = "450px" };
 
     protected override async Task OnInitializedAsync()
     {
         // We access StoreLocationService using @Service
         storelocations = await @Service.GetStoreLocations();
+    }
+
+    public async Task ActionBeginHandler(ActionEventArgs<StoreLocations> args)
+    {
+        if (args.RequestType.ToString() == "Save")
+        {
+            LocationName = args.Data.LocationName;
+            LocationAddress = args.Data.LocationAddress;
+            await Save();
+        }
     }
 
     public async Task Save()
@@ -75,20 +91,20 @@ else
         store.LocationLatitude = coordinate.Y.ToString();
         store.LocationLongitude = coordinate.X.ToString();
         store.LocationData = new Point(coordinate) { SRID = 4326 };
-        
+
         // Save a new store location
         var result = await @Service.AddStoreLocation(store);
 
         // Reload the store locations
         storelocations = await @Service.GetStoreLocations();
     }
-    
+
     // Utility
 
     public async Task<Coordinate> GeocodeAddress(string address)
-    {      
+    {
         Coordinate coordinate = new Coordinate();
-        
+
         // Create a HTTP Client to make the REST call
         using (var client = new System.Net.Http.HttpClient())
         {
@@ -101,8 +117,8 @@ else
             client.DefaultRequestHeaders.Add("x-ms-client-id", AuthService.ClientId);
             // Pass the Access Token in the auth header
             client.DefaultRequestHeaders.Authorization =
-            new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", AccessToken);    
-            
+            new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", AccessToken);
+
             // Build the URL
             StringBuilder sb = new StringBuilder();
 
@@ -123,7 +139,7 @@ else
             // Read the response
             var responseContent = await Response.Content.ReadAsStringAsync();
             var AddressResult = JsonConvert.DeserializeObject<SearchAddressResult>(responseContent);
-            
+
             // Create coordinate
             coordinate = new Coordinate(
                 Convert.ToDouble(AddressResult.results.FirstOrDefault()?.position.lon),
