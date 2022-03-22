@@ -9,12 +9,12 @@ builder.Services.AddDbContext<BlazorStoreFinderContext>(options =>
 options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"),
 x => x.UseNetTopologySuite()));
 
+// Add StoreLocationService
+builder.Services.AddScoped<StoreLocationService>();
+
 // Add services to the container.
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
-
-// Add StoreLocationService
-builder.Services.AddScoped<StoreLocationService>();
 
 // Add Syncfusion
 builder.Services.AddSyncfusionBlazor(options => { options.IgnoreScriptIsolation = true; });
