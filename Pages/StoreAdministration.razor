@@ -56,10 +56,7 @@
 </div>
 
 @code {
-    string LocationName = "";
-    string LocationAddress = "";
     List<StoreLocations> storelocations = new List<StoreLocations>();
-
     private DialogSettings DialogParams = new DialogSettings { MinHeight = "400px", Width = "450px" };
 
     protected override async Task OnInitializedAsync()
@@ -72,9 +69,7 @@
     {
         if (args.RequestType.ToString() == "Save")
         {
-            LocationName = args.Data.LocationName;
-            LocationAddress = args.Data.LocationAddress;
-            await Save();
+            await Save(args.Data);
         }
 
         if (args.RequestType.ToString() == "Delete")
@@ -89,24 +84,18 @@
         storelocations = await Service.GetStoreLocations();
     }
 
-    public async Task Save()
+    public async Task Save(StoreLocations store)
     {
         // Geocode address
-        Coordinate coordinate = await GeocodeAddress(LocationAddress);
+        Coordinate coordinate = await GeocodeAddress(store.LocationAddress);
 
         // Crate a new store location
-        StoreLocations store = new StoreLocations();
-        store.LocationName = LocationName;
-        store.LocationAddress = LocationAddress;
         store.LocationLatitude = coordinate.Y.ToString();
         store.LocationLongitude = coordinate.X.ToString();
         store.LocationData = new Point(coordinate) { SRID = 4326 };
 
         // Save a new store location
-        var result = await Service.AddStoreLocation(store);
-
-        // Reload the store locations
-        storelocations = await Service.GetStoreLocations();
+        await Service.AddStoreLocation(store);
     }
 
     // Utility
