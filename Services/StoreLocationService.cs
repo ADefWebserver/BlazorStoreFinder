@@ -21,18 +21,14 @@ namespace BlazorStoreFinder
         {
             return await _context.StoreLocations.FindAsync(id);
         }
+        
         public async Task<StoreLocations> AddStoreLocation(StoreLocations storeLocation)
         {
             _context.StoreLocations.Add(storeLocation);
             await _context.SaveChangesAsync();
             return storeLocation;
         }
-        public async Task<StoreLocations> UpdateStoreLocation(StoreLocations storeLocation)
-        {
-            _context.StoreLocations.Update(storeLocation);
-            await _context.SaveChangesAsync();
-            return storeLocation;
-        }
+        
         public async Task DeleteStoreLocation(int id)
         {
             var storeLocation = await _context.StoreLocations.FindAsync(id);
