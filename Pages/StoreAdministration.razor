@@ -7,6 +7,7 @@
 @using System.Text;
 @using NetTopologySuite.Geometries
 @using Newtonsoft.Json
+@using System.Net.Http.Headers
 @inject StoreLocationService _StoreLocationService
 @*
     Using OwningComponentBase ensures that the service and related services
@@ -27,7 +28,7 @@
                 <GridEditSettings AllowAdding="true" AllowDeleting="true" Mode="@EditMode.Dialog" Dialog="DialogParams">
                     <Template>
                         @{
-                            var Store = (context as StoreLocations);
+                            var Store = (context as StoreLocations) ?? new StoreLocations();
                         }
                         <div>
                             <div class="form-row">
@@ -89,7 +90,7 @@
         // Geocode address
         Coordinate coordinate = await GeocodeAddress(store.LocationAddress);
 
-        // Crate a new store location
+        // Create a new store location
         store.LocationLatitude = coordinate.Y.ToString();
         store.LocationLongitude = coordinate.X.ToString();
         store.LocationData = new Point(coordinate) { SRID = 4326 };
@@ -111,7 +112,9 @@
             var AccessToken = await AuthService.GetAccessToken();
 
             client.DefaultRequestHeaders.Accept.Clear();
-            client.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
+            client.DefaultRequestHeaders.Accept.Add(
+                new MediaTypeWithQualityHeaderValue("application/json"));
+                
             // Pass the Azure Maps Client Id
             client.DefaultRequestHeaders.Add("x-ms-client-id", AuthService.ClientId);
             // Pass the Access Token in the auth header
@@ -122,7 +125,6 @@
             StringBuilder sb = new StringBuilder();
 
             // Request a address search
-            // See: https://docs.microsoft.com/en-us/rest/api/maps/search/get-search-address
             sb.Append("https://atlas.microsoft.com/search/address/json?");
             // Specify the api version and language
             sb.Append("&api-version=1.0&language=en-US");
