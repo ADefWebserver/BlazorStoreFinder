@@ -14,7 +14,7 @@
     Otherwise DbContext in StoreLocationService will live for the life of the
     connection, which may be problematic if clients stay
     connected for a long time.
-    We access StoreLocationService using @Service
+    We access StoreLocationService using Service
 *@
 @inherits OwningComponentBase<StoreLocationService>
 <h3>Store Administration</h3>
@@ -60,13 +60,12 @@
     string LocationAddress = "";
     List<StoreLocations> storelocations = new List<StoreLocations>();
 
-    private Boolean Check = false;
     private DialogSettings DialogParams = new DialogSettings { MinHeight = "400px", Width = "450px" };
 
     protected override async Task OnInitializedAsync()
     {
         // We access StoreLocationService using @Service
-        storelocations = await @Service.GetStoreLocations();
+        storelocations = await Service.GetStoreLocations();
     }
 
     public async Task ActionBeginHandler(ActionEventArgs<StoreLocations> args)
@@ -77,6 +76,17 @@
             LocationAddress = args.Data.LocationAddress;
             await Save();
         }
+
+        if (args.RequestType.ToString() == "Delete")
+        {
+            await Delete(args.Data);
+        }
+    }
+
+    public async Task Delete(StoreLocations store)
+    {
+        await Service.DeleteStoreLocation(store.Id);
+        storelocations = await Service.GetStoreLocations();
     }
 
     public async Task Save()
@@ -93,10 +103,10 @@
         store.LocationData = new Point(coordinate) { SRID = 4326 };
 
         // Save a new store location
-        var result = await @Service.AddStoreLocation(store);
+        var result = await Service.AddStoreLocation(store);
 
         // Reload the store locations
-        storelocations = await @Service.GetStoreLocations();
+        storelocations = await Service.GetStoreLocations();
     }
 
     // Utility

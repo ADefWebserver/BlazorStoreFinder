@@ -14,7 +14,7 @@ namespace BlazorStoreFinder
         }
         public async Task<List<StoreLocations>> GetStoreLocations()
         {
-            return await _context.StoreLocations.OrderBy(x => x.LocationName).ToListAsync();
+            return await _context.StoreLocations.OrderBy(x => x.Id).ToListAsync();
         }
 
         public async Task<StoreLocations> GetStoreLocation(int id)
@@ -33,13 +33,11 @@ namespace BlazorStoreFinder
             await _context.SaveChangesAsync();
             return storeLocation;
         }
-        public async Task<StoreLocations> DeleteStoreLocation(int id)
+        public async Task DeleteStoreLocation(int id)
         {
             var storeLocation = await _context.StoreLocations.FindAsync(id);
             _context.StoreLocations.Remove(storeLocation);
             await _context.SaveChangesAsync();
-            return storeLocation;
         }     
-
     }
 }
