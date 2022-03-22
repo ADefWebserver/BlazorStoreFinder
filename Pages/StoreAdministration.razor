@@ -23,9 +23,11 @@
 <div class="col-lg-12 control-section">
     <div class="content-wrapper">
         <div class="row">
-            <SfGrid DataSource="@storelocations" Toolbar="@(new List<string>() { "Add", "Delete", "Cancel" })" AllowPaging="true">
+            <SfGrid DataSource="@storelocations"
+                    Toolbar="@(new List<string>() { "Add", "Delete", "Cancel" })" AllowPaging="true">
                 <GridEvents OnActionBegin="ActionBeginHandler" TValue="StoreLocations"></GridEvents>
-                <GridEditSettings AllowAdding="true" AllowDeleting="true" Mode="@EditMode.Dialog" Dialog="DialogParams">
+                <GridEditSettings AllowAdding="true" AllowDeleting="true"
+                                  Mode="@EditMode.Dialog" Dialog="DialogParams">
                     <Template>
                         @{
                             var Store = (context as StoreLocations) ?? new StoreLocations();
@@ -33,23 +35,35 @@
                         <div>
                             <div class="form-row">
                                 <div class="form-group col-md-12">
-                                    <SfTextBox ID="Location Name" @bind-Value="@(Store.LocationName)" TValue="string" FloatLabelType="FloatLabelType.Always" Placeholder="Location Name"></SfTextBox>
+                                    <SfTextBox ID="Location Name" @bind-Value="@(Store.LocationName)"
+                                               TValue="string" FloatLabelType="FloatLabelType.Always"
+                                               Placeholder="Location Name"></SfTextBox>
                                 </div>
                             </div>
                             <div class="form-row">
                                 <div class="form-group col-md-12">
-                                    <SfTextBox ID="Address" @bind-Value="@(Store.LocationAddress)" TValue="string" FloatLabelType="FloatLabelType.Always" Placeholder="Address"></SfTextBox>
+                                    <SfTextBox ID="Address" @bind-Value="@(Store.LocationAddress)"
+                                               TValue="string" FloatLabelType="FloatLabelType.Always"
+                                               Placeholder="Address"></SfTextBox>
                                 </div>
                             </div>
                         </div>
                     </Template>
                 </GridEditSettings>
                 <GridColumns>
-                    <GridColumn Field=@nameof(StoreLocations.Id) HeaderText="Id" IsPrimaryKey="true" ValidationRules="@(new ValidationRules{ Number=true})" TextAlign="TextAlign.Left" Width="50"></GridColumn>
-                    <GridColumn Field=@nameof(StoreLocations.LocationName) HeaderText="Location Name" ValidationRules="@(new ValidationRules{ Required=true})" Width="150"></GridColumn>
-                    <GridColumn Field=@nameof(StoreLocations.LocationAddress) HeaderText="Address" ValidationRules="@(new ValidationRules{ Required=true})"></GridColumn>
-                    <GridColumn Field=@nameof(StoreLocations.LocationLatitude) HeaderText="Latitude" Width="150"></GridColumn>
-                    <GridColumn Field=@nameof(StoreLocations.LocationLongitude) HeaderText="Longitude" Width="150"></GridColumn>
+                    <GridColumn Field=@nameof(StoreLocations.Id) HeaderText="Id" IsPrimaryKey="true"
+                                ValidationRules="@(new ValidationRules{ Number=true})" Width="50">
+                    </GridColumn>
+                    <GridColumn Field=@nameof(StoreLocations.LocationName) HeaderText="Location Name"
+                                ValidationRules="@(new ValidationRules{ Required=true})" Width="150">
+                    </GridColumn>
+                    <GridColumn Field=@nameof(StoreLocations.LocationAddress) HeaderText="Address"
+                                ValidationRules="@(new ValidationRules{ Required=true})">
+                    </GridColumn>
+                    <GridColumn Field=@nameof(StoreLocations.LocationLatitude) HeaderText="Latitude" Width="150">
+                    </GridColumn>
+                    <GridColumn Field=@nameof(StoreLocations.LocationLongitude) HeaderText="Longitude" Width="150">
+                    </GridColumn>
                 </GridColumns>
             </SfGrid>
         </div>
