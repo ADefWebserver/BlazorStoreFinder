@@ -24,7 +24,7 @@
     <div class="content-wrapper">
         <div class="row">
             <SfGrid DataSource="@storelocations"
-                    Toolbar="@(new List<string>() { "Add", "Delete", "Cancel" })" AllowPaging="true">
+                    Toolbar="@(new List<string>() { "Add", "Delete" })" AllowPaging="true">
                 <GridEvents OnActionBegin="ActionBeginHandler" TValue="StoreLocations"></GridEvents>
                 <GridEditSettings AllowAdding="true" AllowDeleting="true"
                                   Mode="@EditMode.Dialog" Dialog="DialogParams">
@@ -72,7 +72,7 @@
 
 @code {
     List<StoreLocations> storelocations = new List<StoreLocations>();
-    private DialogSettings DialogParams = new DialogSettings { MinHeight = "400px", Width = "450px" };
+    private DialogSettings DialogParams = new DialogSettings { MinHeight = "250px", Width = "450px" };
 
     protected override async Task OnInitializedAsync()
     {
