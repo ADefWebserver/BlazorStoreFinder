@@ -49,9 +49,13 @@ namespace BlazorStoreFinder
             Coordinate coordinate = new Coordinate();
 
             // Create a HTTP Client to make the REST call
+
+            // Search - Get Search Address
+            // https://bit.ly/3JER1ii
             
             // Best practices for Azure Maps Search Service
             // https://bit.ly/3JFQkFt
+            
             using (var client = new System.Net.Http.HttpClient())
             {
                 // Get a Access Token from AuthService
