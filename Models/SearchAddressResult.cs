@@ -1,5 +1,5 @@
 ﻿#nullable disable
-namespace BlazorStoreFinder
+namespace BlazorStoreFinder.Result
 {
     public class SearchAddressResult
     {

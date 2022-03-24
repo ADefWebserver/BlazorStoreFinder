@@ -1,4 +1,6 @@
 ﻿#nullable disable
+using BlazorStoreFinder.Result;
+using BlazorStoreFinder.Reverse;
 using Microsoft.EntityFrameworkCore;
 using NetTopologySuite.Geometries;
 using Newtonsoft.Json;
@@ -25,14 +27,14 @@ namespace BlazorStoreFinder
         {
             return await _context.StoreLocations.FindAsync(id);
         }
-        
+
         public async Task<StoreLocations> AddStoreLocation(StoreLocations storeLocation)
         {
             _context.StoreLocations.Add(storeLocation);
             await _context.SaveChangesAsync();
             return storeLocation;
         }
-        
+
         public async Task DeleteStoreLocation(int id)
         {
             var storeLocation = await _context.StoreLocations.FindAsync(id);
@@ -47,6 +49,9 @@ namespace BlazorStoreFinder
             Coordinate coordinate = new Coordinate();
 
             // Create a HTTP Client to make the REST call
+            
+            // Best practices for Azure Maps Search Service
+            // https://bit.ly/3JFQkFt
             using (var client = new System.Net.Http.HttpClient())
             {
                 // Get a Access Token from AuthService
@@ -89,6 +94,55 @@ namespace BlazorStoreFinder
             }
 
             return coordinate;
+        }
+
+        public async Task<SearchAddressResultReverse> GeocodeReverse(Coordinate paramCoordinate)
+        {
+            SearchAddressResultReverse result = new SearchAddressResultReverse();
+
+            // Create a HTTP Client to make the REST call
+            
+            // Search - Get Search Address Reverse
+            // https://bit.ly/3Nuz5cP
+            using (var client = new System.Net.Http.HttpClient())
+            {
+                // Get a Access Token from AuthService
+                var AccessToken = await AuthService.GetAccessToken();
+
+                client.DefaultRequestHeaders.Accept.Clear();
+                client.DefaultRequestHeaders.Accept.Add(
+                    new MediaTypeWithQualityHeaderValue("application/json"));
+
+                // Pass the Azure Maps Client Id
+                client.DefaultRequestHeaders.Add("x-ms-client-id", AuthService.ClientId);
+                // Pass the Access Token in the auth header
+                client.DefaultRequestHeaders.Authorization =
+                new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", AccessToken);
+
+                // Build the URL
+                StringBuilder sb = new StringBuilder();
+                
+                // Request a address search
+                sb.Append("https://atlas.microsoft.com/search/address/reverse/json?");
+                // Specify the api version and language
+                sb.Append("api-version=1.0");
+                // Pass latitude
+                sb.Append($"&query={paramCoordinate.Y}");
+                // Pass longitude 
+                sb.Append($"&query={paramCoordinate.X}");
+                
+                // Set the URL
+                var url = new Uri(sb.ToString());
+
+                // Call Azure maps and get the repsonse
+                var Response = await client.GetAsync(url);
+
+                // Read the response
+                var responseContent = await Response.Content.ReadAsStringAsync();
+                result = JsonConvert.DeserializeObject<SearchAddressResultReverse>(responseContent);
+            }
+
+            return result;
         }
     }
 }
