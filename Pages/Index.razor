@@ -6,6 +6,16 @@
 @using Syncfusion.Blazor.SplitButtons
 @using Darnton.Blazor.DeviceInterop.Geolocation;
 @inject IGeolocationService GeolocationService
+@inject StoreLocationService _StoreLocationService
+@*
+    Using OwningComponentBase ensures that the service and related services
+    that share its scope are disposed with the component.
+    Otherwise DbContext in StoreLocationService will live for the life of the
+    connection, which may be problematic if clients stay
+    connected for a long time.
+    We access StoreLocationService using Service
+*@
+@inherits OwningComponentBase<StoreLocationService>
 <h4>Blazor Store Finder</h4>
 
 <SfDashboardLayout Columns="4" AllowResizing="true">
@@ -61,12 +71,16 @@
                     CurrentCoordinate.Y = Convert.ToDouble(CurrentLongitude);
 
                     // Reverse Geocode coordinate and set location
-                    CurrentLocation = $"{CurrentCoordinate.X} {CurrentCoordinate.Y}";
+                    var SearchAddressResult = await Service.GeocodeReverse(CurrentCoordinate);
+
+                    if (SearchAddressResult.addresses[0].address.freeformAddress != null)
+                    {
+                        CurrentLocation = SearchAddressResult.addresses[0].address.freeformAddress;
+                    }
                 }
 
                 StateHasChanged();
             }
         }
     }
-
 }

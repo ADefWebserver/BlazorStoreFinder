@@ -131,9 +131,9 @@ namespace BlazorStoreFinder
                 // Specify the api version and language
                 sb.Append("api-version=1.0");
                 // Pass latitude
-                sb.Append($"&query={paramCoordinate.Y}");
-                // Pass longitude 
                 sb.Append($"&query={paramCoordinate.X}");
+                // Pass longitude 
+                sb.Append($",{paramCoordinate.Y}");
                 
                 // Set the URL
                 var url = new Uri(sb.ToString());
