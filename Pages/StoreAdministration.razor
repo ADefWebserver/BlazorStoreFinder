@@ -107,6 +107,8 @@
         // Create a new store location
         store.LocationLatitude = coordinate.Y.ToString();
         store.LocationLongitude = coordinate.X.ToString();
+        
+        // SRID 4326 (WGS 84) is the most standard in cartography and GPS systems
         store.LocationData = new Point(coordinate) { SRID = 4326 };
 
         // Save a new store location
