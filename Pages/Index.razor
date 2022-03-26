@@ -5,6 +5,7 @@
 @using Syncfusion.Blazor.Buttons
 @using Syncfusion.Blazor.Inputs
 @using Syncfusion.Blazor.SplitButtons
+@using Syncfusion.Blazor.Lists
 @using Darnton.Blazor.DeviceInterop.Geolocation;
 @inject IGeolocationService GeolocationService
 @inject StoreLocationService _StoreLocationService
@@ -34,6 +35,39 @@
                         </button>
                     </div>
                 </div>
+                <br /><br />
+                @if (colStoreLocations.Count > 0)
+                {
+                    <SfListView DataSource="@colStoreLocations"
+                            CssClass="e-list-template listview-template">
+                        <ListViewFieldSettings TValue="StoreSearchResult" Id="LocationName" Text="Text" Child="Child"></ListViewFieldSettings>
+                        <ListViewTemplates TValue="StoreSearchResult">
+                            <Template>
+                                @{
+                                <div class="e-list-wrapper e-list-avatar e-list-multi-line">
+                                    <span class="e-avatar"><span class="oi oi-globe"></span></span>
+                                    <span class="e-list-item-header">@context.LocationName</span>
+                                    <span class="e-list-item-header">@context.LocationAddress</span>
+                                    <span class="e-list-content">
+                                        @context.Distance
+                                    </span>
+                                </div>
+                            }
+                        </Template>
+                    </ListViewTemplates>
+                </SfListView>
+                }
+                else
+                {
+                    @if (searching)
+                    {
+                        <div class="row" style="margin-left:2px;">
+                            <div class="col-xs-6 col-sm-6 col-lg-6 col-md-6">
+                                <div class="spinner-border text-primary" role="status"></div>
+                            </div>
+                        </div>
+                    }
+                }
             </ContentTemplate>
         </DashboardLayoutPanel>
         <DashboardLayoutPanel Id="Map" Row="0" Column="1" SizeX=3 SizeY=3>
@@ -47,6 +81,7 @@
     List<StoreSearchResult> colStoreLocations = new List<StoreSearchResult>();
     Coordinate CurrentCoordinate = new Coordinate();
     string CurrentLocation = "";
+    bool searching = false;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -88,9 +123,12 @@
 
     public async Task Search()
     {
+        searching = true;
+        StateHasChanged();
+
         // Clear Location results
         colStoreLocations = new List<StoreSearchResult>();
-        
+
         // Geocode address
         Coordinate CurrentCoordinate = await Service.GeocodeAddress(CurrentLocation);
 
@@ -99,5 +137,8 @@
             // Find Nearby Stores
             colStoreLocations = await Service.GetNearbyStoreLocations(CurrentCoordinate);
         }
+
+        searching = false;
+        StateHasChanged();
     }
 }
