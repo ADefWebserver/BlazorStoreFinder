@@ -2,7 +2,7 @@
 @using AzureMapsControl.Components.Map
 @using Darnton.Blazor.DeviceInterop.Geolocation;
 @inject IGeolocationService GeolocationService
-
+<button @onclick="ShowTraffic">Show Traffic</button>
 <AzureMap Id="map"
           CameraOptions="new CameraOptions { Zoom = 10 }"
           StyleOptions="new StyleOptions { ShowLogo = false }"
@@ -11,12 +11,14 @@
                             Incidents = false,
                             Flow = AzureMapsControl.Components.Traffic.TrafficFlow.Relative }"
           OnReady="OnMapReadyAsync" />
-
 @code {
+    MapEventArgs? myMap;
     protected GeolocationResult? CurrentPositionResult { get; set; }
 
     public async Task OnMapReadyAsync(MapEventArgs eventArgs)
     {
+        myMap = eventArgs;
+        
         // Get current location
         // will cause a popup to show to ask permission
         CurrentPositionResult = await GeolocationService.GetCurrentPosition();
@@ -37,10 +39,16 @@
                     options => options.Center =
                     new AzureMapsControl.Components.Atlas.Position
                     (Convert.ToDouble(CurrentLongitude), Convert.ToDouble(CurrentLatitude)));
-
-                // Enable Traffic and set options
-                await eventArgs.Map.SetTrafficOptionsAsync(options => options.Incidents = true);
             }
+        }
+    }
+
+    public async Task ShowTraffic()
+    {
+        if (myMap != null)
+        {
+            // Enable Traffic and set options
+            await myMap.Map.SetTrafficOptionsAsync(options => options.Incidents = true);
         }
     }
 }

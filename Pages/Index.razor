@@ -7,6 +7,7 @@
 @using Syncfusion.Blazor.SplitButtons
 @using Syncfusion.Blazor.Lists
 @using Darnton.Blazor.DeviceInterop.Geolocation;
+@using AzureMapsControl.Components.Map
 @inject IGeolocationService GeolocationService
 @inject StoreLocationService _StoreLocationService
 @*
@@ -71,11 +72,19 @@
         </DashboardLayoutPanel>
         <DashboardLayoutPanel Id="Map" Row="0" Column="1" SizeX=3 SizeY=3>
             <HeaderTemplate>Map</HeaderTemplate>
+            <ContentTemplate>
+                <AzureMap Id="map"
+                          CameraOptions="new CameraOptions { Zoom = 10 }"
+                          StyleOptions="new StyleOptions { ShowLogo = false }"
+                          EventActivationFlags="MapEventActivationFlags.None().Enable(MapEventType.Ready)"
+                          OnReady="OnMapReadyAsync" />
+            </ContentTemplate>
         </DashboardLayoutPanel>
     </DashboardLayoutPanels>
 </SfDashboardLayout>
 
 @code {
+    MapEventArgs? myMap;
     protected GeolocationResult? CurrentPositionResult { get; set; }
     List<StoreSearchResult> colStoreLocations = new List<StoreSearchResult>();
     Coordinate CurrentCoordinate = new Coordinate();
@@ -120,6 +129,11 @@
         }
     }
 
+    public async Task OnMapReadyAsync(MapEventArgs eventArgs)
+    {
+        myMap = eventArgs;
+    }
+
     public async Task Search()
     {
         searching = true;
@@ -139,5 +153,13 @@
 
         searching = false;
         StateHasChanged();
+
+        if (myMap != null && CurrentCoordinate != null)
+        {
+            await myMap.Map.SetCameraOptionsAsync(
+                    options => options.Center =
+                    new AzureMapsControl.Components.Atlas.Position
+                    (CurrentCoordinate.X, CurrentCoordinate.Y));
+        }
     }
 }
