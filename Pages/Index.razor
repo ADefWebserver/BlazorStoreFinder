@@ -1,4 +1,5 @@
 ﻿@page "/"
+@using BlazorStoreFinder
 @using NetTopologySuite.Geometries
 @using Syncfusion.Blazor.Layouts
 @using Syncfusion.Blazor.Buttons
@@ -28,7 +29,7 @@
                         <SfTextBox Placeholder="Location" @bind-Value="CurrentLocation"></SfTextBox>
                     </div>
                     <div class="col-xs-3 col-sm-3 col-lg-3 col-md-3">
-                        <button class="e-control e-btn e-lib" style="width:auto; margin-top:8px;">
+                        <button class="e-control e-btn e-lib" @onclick="Search" style="width:auto; margin-top:8px;">
                             <span class="oi oi-magnifying-glass"></span>
                         </button>
                     </div>
@@ -43,6 +44,7 @@
 
 @code {
     protected GeolocationResult? CurrentPositionResult { get; set; }
+    List<StoreSearchResult> colStoreLocations = new List<StoreSearchResult>();
     Coordinate CurrentCoordinate = new Coordinate();
     string CurrentLocation = "";
 
@@ -81,6 +83,21 @@
 
                 StateHasChanged();
             }
+        }
+    }
+
+    public async Task Search()
+    {
+        // Clear Location results
+        colStoreLocations = new List<StoreSearchResult>();
+        
+        // Geocode address
+        Coordinate CurrentCoordinate = await Service.GeocodeAddress(CurrentLocation);
+
+        if (CurrentCoordinate != null)
+        {
+            // Find Nearby Stores
+            colStoreLocations = await Service.GetNearbyStoreLocations(CurrentCoordinate);
         }
     }
 }

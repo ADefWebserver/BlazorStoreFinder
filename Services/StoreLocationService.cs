@@ -2,6 +2,7 @@
 using BlazorStoreFinder.Result;
 using BlazorStoreFinder.Reverse;
 using Microsoft.EntityFrameworkCore;
+using NetTopologySuite;
 using NetTopologySuite.Geometries;
 using Newtonsoft.Json;
 using System.Collections.Generic;
@@ -42,7 +43,27 @@ namespace BlazorStoreFinder
             await _context.SaveChangesAsync();
         }
 
-        // Utility
+        public async Task<List<StoreSearchResult>> GetNearbyStoreLocations(Coordinate paramCoordinate)
+        {
+            List<StoreSearchResult> colStoreLocations = new List<StoreSearchResult>();
+
+            var geometryFactory = NtsGeometryServices.Instance.CreateGeometryFactory(srid: 4326);
+            var SearchLocation = geometryFactory.CreatePoint(paramCoordinate);
+
+            colStoreLocations = await _context.StoreLocations
+                .OrderBy(x => x.LocationData.Distance(SearchLocation))
+                .Where(x => x.LocationData.IsWithinDistance(SearchLocation, 2000))
+                .Select(x => new StoreSearchResult
+                {
+                    LocationName = x.LocationName,
+                    LocationAddress = x.LocationAddress,
+                    Distance = x.LocationData.Distance(SearchLocation)
+                }).ToListAsync();
+
+            return colStoreLocations;
+        }
+
+        // Geocode
 
         public async Task<Coordinate> GeocodeAddress(string address)
         {
@@ -52,10 +73,10 @@ namespace BlazorStoreFinder
 
             // Search - Get Search Address
             // https://bit.ly/3JER1ii
-            
+
             // Best practices for Azure Maps Search Service
             // https://bit.ly/3JFQkFt
-            
+
             using (var client = new System.Net.Http.HttpClient())
             {
                 // Get a Access Token from AuthService
@@ -105,7 +126,7 @@ namespace BlazorStoreFinder
             SearchAddressResultReverse result = new SearchAddressResultReverse();
 
             // Create a HTTP Client to make the REST call
-            
+
             // Search - Get Search Address Reverse
             // https://bit.ly/3Nuz5cP
             using (var client = new System.Net.Http.HttpClient())
@@ -125,7 +146,7 @@ namespace BlazorStoreFinder
 
                 // Build the URL
                 StringBuilder sb = new StringBuilder();
-                
+
                 // Request a address search
                 sb.Append("https://atlas.microsoft.com/search/address/reverse/json?");
                 // Specify the api version and language
@@ -134,7 +155,7 @@ namespace BlazorStoreFinder
                 sb.Append($"&query={paramCoordinate.X}");
                 // Pass longitude 
                 sb.Append($",{paramCoordinate.Y}");
-                
+
                 // Set the URL
                 var url = new Uri(sb.ToString());
 
