@@ -47,17 +47,18 @@ namespace BlazorStoreFinder
         {
             List<StoreSearchResult> colStoreLocations = new List<StoreSearchResult>();
 
+            var distanceInMeters = 20 * 1609.344; // 20 miles in meters
             var geometryFactory = NtsGeometryServices.Instance.CreateGeometryFactory(srid: 4326);
             var SearchLocation = geometryFactory.CreatePoint(paramCoordinate);
 
             colStoreLocations = await _context.StoreLocations
                 .OrderBy(x => x.LocationData.Distance(SearchLocation))
-                .Where(x => x.LocationData.IsWithinDistance(SearchLocation, 2000))
+                .Where(x => x.LocationData.IsWithinDistance(SearchLocation, distanceInMeters))
                 .Select(x => new StoreSearchResult
                 {
                     LocationName = x.LocationName,
                     LocationAddress = x.LocationAddress,
-                    Distance = x.LocationData.Distance(SearchLocation)
+                    Distance = (x.LocationData.Distance(SearchLocation) / 1609.344)
                 }).ToListAsync();
 
             return colStoreLocations;
