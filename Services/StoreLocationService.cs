@@ -43,7 +43,7 @@ namespace BlazorStoreFinder
             await _context.SaveChangesAsync();
         }
 
-        public async Task<List<StoreSearchResult>> GetNearbyStoreLocations(Coordinate paramCoordinate)
+        public List<StoreSearchResult> GetNearbyStoreLocations(Coordinate paramCoordinate)
         {
             List<StoreSearchResult> colStoreLocations = new List<StoreSearchResult>();
 
@@ -51,7 +51,7 @@ namespace BlazorStoreFinder
             var geometryFactory = NtsGeometryServices.Instance.CreateGeometryFactory(srid: 4326);
             var SearchLocation = geometryFactory.CreatePoint(paramCoordinate);
 
-            colStoreLocations = await _context.StoreLocations
+            colStoreLocations = _context.StoreLocations.AsEnumerable()
                 .OrderBy(x => x.LocationData.Distance(SearchLocation))
                 .Where(x => x.LocationData.IsWithinDistance(SearchLocation, distanceInMeters))
                 .Select(x => new StoreSearchResult
@@ -59,7 +59,7 @@ namespace BlazorStoreFinder
                     LocationName = x.LocationName,
                     LocationAddress = x.LocationAddress,
                     Distance = (x.LocationData.Distance(SearchLocation) / 1609.344)
-                }).ToListAsync();
+                }).ToList();
 
             return colStoreLocations;
         }

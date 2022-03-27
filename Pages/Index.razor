@@ -23,7 +23,7 @@
 
 <SfDashboardLayout Columns="4" AllowResizing="true">
     <DashboardLayoutPanels>
-        <DashboardLayoutPanel Id="Search" Row="0" Column="0" SizeX=1 SizeY=3>
+        <DashboardLayoutPanel Id="Search" Row="0" Column="0" SizeX=1 SizeY=2>
             <HeaderTemplate>Search</HeaderTemplate>
             <ContentTemplate>
                 <div class="row" style="margin-left:2px;">
@@ -48,7 +48,7 @@
                 <br /><br />
                 @if (colStoreLocations.Count > 0)
                 {
-                    <SfListView DataSource="@colStoreLocations"
+                    <SfListView DataSource="@colStoreLocations" Height="440px"
                             CssClass="e-list-template listview-template">
                         <ListViewFieldSettings TValue="StoreSearchResult" Id="LocationName"
                                            Text="Text" Child="Child"></ListViewFieldSettings>
@@ -70,7 +70,7 @@
                 }
             </ContentTemplate>
         </DashboardLayoutPanel>
-        <DashboardLayoutPanel Id="Map" Row="0" Column="1" SizeX=3 SizeY=3>
+        <DashboardLayoutPanel Id="Map" Row="0" Column="1" SizeX=3 SizeY=2>
             <HeaderTemplate>Map</HeaderTemplate>
             <ContentTemplate>
                 <AzureMap Id="map"
@@ -148,7 +148,7 @@
         if (CurrentCoordinate != null)
         {
             // Find Nearby Stores
-            colStoreLocations = await Service.GetNearbyStoreLocations(CurrentCoordinate);
+            colStoreLocations = Service.GetNearbyStoreLocations(CurrentCoordinate);
         }
 
         searching = false;
