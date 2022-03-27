@@ -1,11 +1,15 @@
 ﻿#nullable disable
 using BlazorStoreFinder.Result;
 using BlazorStoreFinder.Reverse;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using NetTopologySuite;
 using NetTopologySuite.Geometries;
 using Newtonsoft.Json;
 using System.Collections.Generic;
+using System.Data;
+using System.Data.Common;
+using System.Data.Entity.Core.EntityClient;
 using System.Linq;
 using System.Net.Http.Headers;
 using System.Text;
@@ -47,19 +51,46 @@ namespace BlazorStoreFinder
         {
             List<StoreSearchResult> colStoreLocations = new List<StoreSearchResult>();
 
-            var distanceInMeters = 40 * 1609.344; // 40 miles in meters
-            var geometryFactory = NtsGeometryServices.Instance.CreateGeometryFactory(srid: 4326);
-            var SearchLocation = geometryFactory.CreatePoint(paramCoordinate);
+            // Using a raw SQL query because sometimes NetTopologySuite
+            // cannot properly translate a query
 
-            colStoreLocations = _context.StoreLocations.AsEnumerable()
-                .OrderBy(x => x.LocationData.Distance(SearchLocation))
-                .Where(x => x.LocationData.IsWithinDistance(SearchLocation, distanceInMeters))
-                .Select(x => new StoreSearchResult
+            StringBuilder sb = new StringBuilder();
+
+            sb.Append("declare @Distance as int = 25 ");
+            sb.Append($"declare @Latitude as nvarchar(250) = '{paramCoordinate.Y}' ");
+            sb.Append($"declare @Longitude as nvarchar(250) = '{paramCoordinate.X}' ");
+            sb.Append("declare @location sys.geography ");
+            sb.Append(" ");
+            sb.Append("set @location = ");
+            sb.Append("geography::STPointFromText('POINT(' + @Longitude + ' ' + @Latitude + ')', 4326) ");
+            sb.Append(" ");
+            sb.Append("SELECT ");
+            sb.Append("[LocationName], ");
+            sb.Append("[LocationAddress], ");
+            sb.Append("[LocationData].STDistance(@location) / 1609.3440000000001E0 AS [DistanceInMiles] ");
+            sb.Append("FROM [StoreLocations] ");
+            sb.Append("where [LocationData].STDistance(@location) / 1609.3440000000001E0 < @Distance ");
+            sb.Append("order by [LocationData].STDistance(@location) / 1609.3440000000001E0 ");
+
+            using (SqlConnection connection =
+            new SqlConnection(_context.Database.GetConnectionString()))
+            {
+                SqlCommand command = new SqlCommand(sb.ToString(), connection);
+
+                connection.Open();
+                SqlDataReader reader = command.ExecuteReader();
+                while (reader.Read())
                 {
-                    LocationName = x.LocationName,
-                    LocationAddress = x.LocationAddress,
-                    Distance = (x.LocationData.Distance(SearchLocation) / 1609.344)
-                }).ToList();
+                    colStoreLocations.Add(
+                    new StoreSearchResult
+                    {
+                        LocationName = (string)reader[0],
+                        LocationAddress = (string)reader[1],
+                        Distance = (double)reader[2]
+                    });
+                }
+                reader.Close();
+            }
 
             return colStoreLocations;
         }
