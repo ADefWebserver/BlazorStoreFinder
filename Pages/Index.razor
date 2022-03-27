@@ -20,69 +20,60 @@
 *@
 @inherits OwningComponentBase<StoreLocationService>
 <h4>Blazor Store Finder</h4>
-
-<SfDashboardLayout Columns="4" AllowResizing="false">
-    <DashboardLayoutPanels>
-        <DashboardLayoutPanel Id="Search" Row="0" Column="0" SizeX=1 SizeY=2>
-            <HeaderTemplate>Search</HeaderTemplate>
-            <ContentTemplate>
-                <div class="row" style="margin-left:2px;">
-                    <div class="col-xs-9 col-sm-9 col-lg-9 col-md-9" style="margin-top:10px;">
-                        <SfTextBox Placeholder="Location" @bind-Value="CurrentLocation"></SfTextBox>
-                    </div>
-                    <div class="col-xs-3 col-sm-3 col-lg-3 col-md-3">
-                        @if (searching)
-                        {
-                            <div class="spinner-border text-primary" role="status"
-                             style="margin-top:8px;"></div>
-                        }
-                        else
-                        {
-                            <button class="e-control e-btn e-lib" @onclick="Search"
-                                style="width:auto; margin-top:8px;">
-                                <span class="oi oi-magnifying-glass"></span>
-                            </button>
-                        }
-                    </div>
-                </div>
-                <br /><br />
-                @if (colStoreLocations.Count > 0)
+<div class="row" style="width:1500px">
+    <div class="col-xs-2 col-sm-2 col-lg-2 col-md-2">
+        <div class="row">
+            <div class="col-xs-9 col-sm-9 col-lg-9 col-md-9" style="margin-top:10px;">
+                <SfTextBox Placeholder="Location" @bind-Value="CurrentLocation"></SfTextBox>
+            </div>
+            <div class="col-xs-3 col-sm-3 col-lg-3 col-md-3">
+                @if (searching)
                 {
-                    <SfListView @ref="StoreSearchResultListBox" DataSource="@colStoreLocations" 
-                    Height="440px" CssClass="e-list-template listview-template">
-                        <ListViewFieldSettings TValue="StoreSearchResult" Id="LocationName"
-                                           Text="Text" Child="Child"></ListViewFieldSettings>
-                        <ListViewTemplates TValue="StoreSearchResult">
-                            <Template>
-                                @{
-                                <div class="e-list-wrapper e-list-avatar e-list-multi-line">
-                                    <span class="e-avatar"><span class="oi oi-globe"></span></span>
-                                    <span class="e-list-item-header">@context.LocationName</span>
-                                    <span class="e-list-item-header">@context.LocationAddress</span>
-                                    <span class="e-list-content">
-                                        @context.Distance.ToString("F") miles
-                                    </span>
-                                </div>
-                            }
-                        </Template>
-                    </ListViewTemplates>
-                </SfListView>
+                    <div class="spinner-border text-primary" role="status"
+                     style="margin-top:8px;"></div>
                 }
-            </ContentTemplate>
-        </DashboardLayoutPanel>
-        <DashboardLayoutPanel Id="Map" Row="0" Column="1" SizeX=3 SizeY=2>
-            <HeaderTemplate>Map</HeaderTemplate>
-            <ContentTemplate>
-                <AzureMap Id="map"
-                          CameraOptions="new CameraOptions { Zoom = 10 }"
-                          StyleOptions="new StyleOptions { ShowLogo = false, ShowFeedbackLink = false }"
-                          EventActivationFlags="MapEventActivationFlags.None().Enable(MapEventType.Ready)"
-                          OnReady="OnMapReadyAsync" />
-            </ContentTemplate>
-        </DashboardLayoutPanel>
-    </DashboardLayoutPanels>
-</SfDashboardLayout>
+                else
+                {
+                    <button class="e-control e-btn e-lib" @onclick="Search"
+                        style="width:auto; margin-top:8px;">
+                        <span class="oi oi-magnifying-glass"></span>
+                    </button>
+                }
+            </div>
+        </div>
+        <br />
+        @if (colStoreLocations.Count > 0)
+        {
+            <SfListView @ref="StoreSearchResultListBox" DataSource="@colStoreLocations"
+                    Height="450px" CssClass="e-list-template listview-template">
+                <ListViewFieldSettings TValue="StoreSearchResult" Id="LocationName"
+                                   Text="Text" Child="Child"></ListViewFieldSettings>
+                <ListViewTemplates TValue="StoreSearchResult">
+                    <Template>
+                        @{
+                        <div class="e-list-wrapper e-list-avatar e-list-multi-line">
+                            <span class="e-avatar"><span class="oi oi-globe"></span></span>
+                            <span class="e-list-item-header">@context.LocationName</span>
+                            <span class="e-list-item-header">@context.LocationAddress</span>
+                            <span class="e-list-content">
+                                @context.Distance.ToString("F") miles
+                            </span>
+                        </div>
+                    }
+                </Template>
+            </ListViewTemplates>
+        </SfListView>
+        }
+    </div>
 
+    <div class="col-xs-10 col-sm-10 col-lg-10 col-md-10">
+        <AzureMap Id="map"
+                  CameraOptions="new CameraOptions { Zoom = 10 }"
+                  StyleOptions="new StyleOptions { ShowLogo = false, ShowFeedbackLink = false }"
+                  EventActivationFlags="MapEventActivationFlags.None().Enable(MapEventType.Ready)"
+                  OnReady="OnMapReadyAsync" />
+    </div>
+</div>
 @code {
     MapEventArgs? myMap;
     SfListView<StoreSearchResult>? StoreSearchResultListBox;
@@ -149,7 +140,7 @@
         if (CurrentCoordinate != null)
         {
             // Find Nearby Stores
-            colStoreLocations =  Service.GetNearbyStoreLocations(CurrentCoordinate);
+            colStoreLocations = Service.GetNearbyStoreLocations(CurrentCoordinate);
         }
 
         searching = false;
