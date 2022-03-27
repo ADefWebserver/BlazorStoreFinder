@@ -117,8 +117,9 @@
 
                     if (SearchAddressResult.addresses[0].address.freeformAddress != null)
                     {
-                        CurrentLocation = SearchAddressResult.addresses[0].address.freeformAddress;
-                        
+                        CurrentLocation =
+                        SearchAddressResult.addresses[0].address.freeformAddress;
+
                         // Search for nearby Stores
                         await Search();
                     }
@@ -169,7 +170,7 @@
                 new AzureMapsControl.Components.Markers.HtmlMarkerOptions
                     {
                         Position = new AzureMapsControl.Components.Atlas
-                            .Position(CurrentCoordinate.X, CurrentCoordinate.Y),
+                                .Position(CurrentCoordinate.X, CurrentCoordinate.Y),
 
                         Draggable = false,
                         Color = "#FF0000"
@@ -184,7 +185,7 @@
                     new AzureMapsControl.Components.Markers.HtmlMarkerOptions
                         {
                             Position = new AzureMapsControl.Components.Atlas
-                                .Position(store.LocationLongitude, store.LocationLatitude),
+                                    .Position(store.LocationLongitude, store.LocationLatitude),
 
                             Draggable = false,
                             Color = "#0000FF"
@@ -198,9 +199,6 @@
 
     async Task OnStoreSelect(StoreSearchResult SearchResult)
     {
-        // Get selected Store
-        var Selected = SearchResult;
-
         // Center map on store
         if (myMap != null && CurrentCoordinate != null)
         {
