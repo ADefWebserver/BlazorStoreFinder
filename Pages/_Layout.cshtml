@@ -13,11 +13,16 @@
     <link href="BlazorStoreFinder.styles.css" rel="stylesheet" />
     <link href="_content/Syncfusion.Blazor.Themes/bootstrap5.css" rel="stylesheet" />
     <script src="_content/Syncfusion.Blazor/scripts/syncfusion-blazor.min.js"  type="text/javascript"></script>
+    <link rel="stylesheet" href="https://atlas.microsoft.com/sdk/javascript/mapcontrol/2/atlas.min.css" type="text/css" />
+    <link rel="stylesheet" href="https://atlas.microsoft.com/sdk/javascript/drawing/0.1/atlas-drawing.min.css" type="text/css" />
+    <link rel="stylesheet" href="https://atlas.microsoft.com/sdk/javascript/indoor/0.1/atlas-indoor.min.css" type="text/css" />
     <style>
         #map {
             position: absolute;
-            width: 50%;
-            height: 50%;
+            width: 75%;
+            min-width: 600px;
+            height: 75%;
+            min-height: 500px;
         }
     </style>
     <component type="typeof(HeadOutlet)" render-mode="ServerPrerendered" />

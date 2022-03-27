@@ -3,17 +3,12 @@ using BlazorStoreFinder.Result;
 using BlazorStoreFinder.Reverse;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
-using NetTopologySuite;
 using NetTopologySuite.Geometries;
 using Newtonsoft.Json;
-using System.Collections.Generic;
 using System.Data;
-using System.Data.Common;
-using System.Data.Entity.Core.EntityClient;
-using System.Linq;
 using System.Net.Http.Headers;
 using System.Text;
-using System.Threading.Tasks;
+
 namespace BlazorStoreFinder
 {
     public class StoreLocationService

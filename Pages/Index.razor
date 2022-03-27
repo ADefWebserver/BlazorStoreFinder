@@ -21,7 +21,7 @@
 @inherits OwningComponentBase<StoreLocationService>
 <h4>Blazor Store Finder</h4>
 
-<SfDashboardLayout Columns="4" AllowResizing="true">
+<SfDashboardLayout Columns="4" AllowResizing="false">
     <DashboardLayoutPanels>
         <DashboardLayoutPanel Id="Search" Row="0" Column="0" SizeX=1 SizeY=2>
             <HeaderTemplate>Search</HeaderTemplate>
@@ -75,7 +75,7 @@
             <ContentTemplate>
                 <AzureMap Id="map"
                           CameraOptions="new CameraOptions { Zoom = 10 }"
-                          StyleOptions="new StyleOptions { ShowLogo = false }"
+                          StyleOptions="new StyleOptions { ShowLogo = false, ShowFeedbackLink = false }"
                           EventActivationFlags="MapEventActivationFlags.None().Enable(MapEventType.Ready)"
                           OnReady="OnMapReadyAsync" />
             </ContentTemplate>
@@ -131,7 +131,7 @@
 
     public async Task OnMapReadyAsync(MapEventArgs eventArgs)
     {
-        myMap = eventArgs;
+        await Task.Run(() => myMap = eventArgs);
     }
 
     public async Task Search()
@@ -148,7 +148,7 @@
         if (CurrentCoordinate != null)
         {
             // Find Nearby Stores
-            colStoreLocations = Service.GetNearbyStoreLocations(CurrentCoordinate);
+            colStoreLocations =  Service.GetNearbyStoreLocations(CurrentCoordinate);
         }
 
         searching = false;
