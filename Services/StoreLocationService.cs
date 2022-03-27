@@ -67,6 +67,8 @@ namespace BlazorStoreFinder
             sb.Append("SELECT ");
             sb.Append("[LocationName], ");
             sb.Append("[LocationAddress], ");
+            sb.Append("[LocationLatitude], ");
+            sb.Append("[LocationLongitude], ");
             sb.Append("[LocationData].STDistance(@location) / 1609.3440000000001E0 AS [DistanceInMiles] ");
             sb.Append("FROM [StoreLocations] ");
             sb.Append("where [LocationData].STDistance(@location) / 1609.3440000000001E0 < @Distance ");
@@ -85,6 +87,8 @@ namespace BlazorStoreFinder
                     {
                         LocationName = reader["LocationName"].ToString(),
                         LocationAddress = reader["LocationAddress"].ToString(),
+                        LocationLatitude = Convert.ToDouble(reader["LocationLatitude"]),
+                        LocationLongitude = Convert.ToDouble(reader["LocationLongitude"]),
                         Distance = double.Parse(reader["DistanceInMiles"].ToString())
                     });
                 }       

@@ -51,13 +51,18 @@
                 <ListViewTemplates TValue="StoreSearchResult">
                     <Template>
                         @{
-                        <div class="e-list-wrapper e-list-avatar e-list-multi-line">
+                        StoreSearchResult currentData = (StoreSearchResult)context;
+                        
+                        <div class="e-list-wrapper e-list-avatar e-list-multi-line"
+                             @onclick="(e => OnStoreSelect(currentData))">
+                             
                             <span class="e-avatar"><span class="oi oi-globe"></span></span>
-                            <span class="e-list-item-header">@context.LocationName</span>
-                            <span class="e-list-item-header">@context.LocationAddress</span>
+                            <span class="e-list-item-header">@currentData.LocationName</span>
+                            <span class="e-list-item-header">@currentData.LocationAddress</span>
                             <span class="e-list-content">
-                                @context.Distance.ToString("F") miles
+                                @currentData.Distance.ToString("F") miles
                             </span>
+                            
                         </div>
                     }
                 </Template>
@@ -152,6 +157,21 @@
                     options => options.Center =
                     new AzureMapsControl.Components.Atlas.Position
                     (CurrentCoordinate.X, CurrentCoordinate.Y));
+        }
+    }
+
+    async Task OnStoreSelect(StoreSearchResult SearchResult)
+    {
+        // Get selected Store
+        var Selected = SearchResult;
+        
+        // Center map on store
+        if (myMap != null && CurrentCoordinate != null)
+        {
+            await myMap.Map.SetCameraOptionsAsync(
+                    options => options.Center =
+                    new AzureMapsControl.Components.Atlas.Position
+                    (SearchResult.LocationLongitude, SearchResult.LocationLatitude));
         }
     }
 }
