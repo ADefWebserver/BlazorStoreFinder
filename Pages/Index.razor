@@ -52,17 +52,17 @@
                     <Template>
                         @{
                         StoreSearchResult currentData = (StoreSearchResult)context;
-                        
+
                         <div class="e-list-wrapper e-list-avatar e-list-multi-line"
                              @onclick="(e => OnStoreSelect(currentData))">
-                             
+
                             <span class="e-avatar"><span class="oi oi-globe"></span></span>
                             <span class="e-list-item-header">@currentData.LocationName</span>
                             <span class="e-list-item-header">@currentData.LocationAddress</span>
                             <span class="e-list-content">
                                 @currentData.Distance.ToString("F") miles
                             </span>
-                            
+
                         </div>
                     }
                 </Template>
@@ -118,6 +118,9 @@
                     if (SearchAddressResult.addresses[0].address.freeformAddress != null)
                     {
                         CurrentLocation = SearchAddressResult.addresses[0].address.freeformAddress;
+                        
+                        // Search for nearby Stores
+                        await Search();
                     }
                 }
 
@@ -153,18 +156,51 @@
 
         if (myMap != null && CurrentCoordinate != null)
         {
+            // Center Map to curent location
             await myMap.Map.SetCameraOptionsAsync(
                     options => options.Center =
                     new AzureMapsControl.Components.Atlas.Position
                     (CurrentCoordinate.X, CurrentCoordinate.Y));
+
+            // Add icon for current location
+            await myMap.Map.ClearHtmlMarkersAsync();
+
+            var HomeIcon = new AzureMapsControl.Components.Markers.HtmlMarker(
+                new AzureMapsControl.Components.Markers.HtmlMarkerOptions
+                    {
+                        Position = new AzureMapsControl.Components.Atlas
+                            .Position(CurrentCoordinate.X, CurrentCoordinate.Y),
+
+                        Draggable = false,
+                        Color = "#FF0000"
+                    });
+
+            await myMap.Map.AddHtmlMarkersAsync(HomeIcon);
+
+            // Add icons for search results
+            foreach (var store in colStoreLocations)
+            {
+                var StoreIcon = new AzureMapsControl.Components.Markers.HtmlMarker(
+                    new AzureMapsControl.Components.Markers.HtmlMarkerOptions
+                        {
+                            Position = new AzureMapsControl.Components.Atlas
+                                .Position(store.LocationLongitude, store.LocationLatitude),
+
+                            Draggable = false,
+                            Color = "#0000FF"
+                        });
+
+                await myMap.Map.AddHtmlMarkersAsync(StoreIcon);
+            }
         }
+
     }
 
     async Task OnStoreSelect(StoreSearchResult SearchResult)
     {
         // Get selected Store
         var Selected = SearchResult;
-        
+
         // Center map on store
         if (myMap != null && CurrentCoordinate != null)
         {
