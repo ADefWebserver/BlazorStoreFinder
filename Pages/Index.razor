@@ -48,8 +48,8 @@
                 <br /><br />
                 @if (colStoreLocations.Count > 0)
                 {
-                    <SfListView DataSource="@colStoreLocations" Height="440px"
-                            CssClass="e-list-template listview-template">
+                    <SfListView @ref="StoreSearchResultListBox" DataSource="@colStoreLocations" 
+                    Height="440px" CssClass="e-list-template listview-template">
                         <ListViewFieldSettings TValue="StoreSearchResult" Id="LocationName"
                                            Text="Text" Child="Child"></ListViewFieldSettings>
                         <ListViewTemplates TValue="StoreSearchResult">
@@ -85,6 +85,7 @@
 
 @code {
     MapEventArgs? myMap;
+    SfListView<StoreSearchResult>? StoreSearchResultListBox;
     protected GeolocationResult? CurrentPositionResult { get; set; }
     List<StoreSearchResult> colStoreLocations = new List<StoreSearchResult>();
     Coordinate CurrentCoordinate = new Coordinate();
