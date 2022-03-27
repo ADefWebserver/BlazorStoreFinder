@@ -1,6 +1,6 @@
-# Blazor Store Finder (in progress)
+# Blazor Store Finder 
 ### Uses Azure Maps and Syncfusion to create a store finder
-![Animation](https://user-images.githubusercontent.com/1857799/160243620-7dbc54e4-2337-4ed8-af78-3061e5fac477.gif)
+![Animation](https://user-images.githubusercontent.com/1857799/160306103-f575b5c1-1e11-472a-a96f-19fa5f069748.gif)
 
 ![Animation](https://user-images.githubusercontent.com/1857799/159494290-5a1cd6a9-aa56-4c52-9de2-c53e34c265cd.gif)
 
