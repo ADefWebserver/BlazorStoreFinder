@@ -51,14 +51,19 @@ namespace BlazorStoreFinder
 
             StringBuilder sb = new StringBuilder();
 
+            // Set Distance to 25 miles
             sb.Append("declare @Distance as int = 25 ");
+            // Declare the Coordinate
             sb.Append($"declare @Latitude as nvarchar(250) = '{paramCoordinate.Y}' ");
             sb.Append($"declare @Longitude as nvarchar(250) = '{paramCoordinate.X}' ");
+            // Declare the Geography
             sb.Append("declare @location sys.geography ");
             sb.Append(" ");
+            // Set the Geography to the Coordinate
             sb.Append("set @location = ");
             sb.Append("geography::STPointFromText('POINT(' + @Longitude + ' ' + @Latitude + ')', 4326) ");
             sb.Append(" ");
+            // Search for Store Locations within the distance
             sb.Append("SELECT ");
             sb.Append("[LocationName], ");
             sb.Append("[LocationAddress], ");
@@ -71,19 +76,19 @@ namespace BlazorStoreFinder
             new SqlConnection(_context.Database.GetConnectionString()))
             {
                 SqlCommand command = new SqlCommand(sb.ToString(), connection);
-
                 connection.Open();
                 SqlDataReader reader = command.ExecuteReader();
+                
                 while (reader.Read())
                 {
-                    colStoreLocations.Add(
-                    new StoreSearchResult
+                    colStoreLocations.Add(new StoreSearchResult
                     {
-                        LocationName = (string)reader[0],
-                        LocationAddress = (string)reader[1],
-                        Distance = (double)reader[2]
+                        LocationName = reader["LocationName"].ToString(),
+                        LocationAddress = reader["LocationAddress"].ToString(),
+                        Distance = double.Parse(reader["DistanceInMiles"].ToString())
                     });
-                }
+                }       
+                
                 reader.Close();
             }
 
