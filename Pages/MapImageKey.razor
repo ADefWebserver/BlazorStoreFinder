@@ -55,14 +55,16 @@
             // Set the URL
             var url = new Uri(sb.ToString());
 
-            // Call Azure maps and get the repsonse
+            // Call Azure maps and get the response
             var Response = await client.GetAsync(url);
 
             // Read the response
-            var responseContent = await Response.Content.ReadAsByteArrayAsync();
+            var responseContent =
+            await Response.Content.ReadAsByteArrayAsync();
 
             // Convert the reponse to an image
-            PngImage = $"data:image/png;base64,{Convert.ToBase64String(responseContent)}";
+            PngImage =
+            $"data:image/png;base64,{Convert.ToBase64String(responseContent)}";
 
             isLoading = false;
             StateHasChanged();

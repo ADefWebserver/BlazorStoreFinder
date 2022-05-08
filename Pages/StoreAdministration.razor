@@ -9,14 +9,6 @@
 @using Newtonsoft.Json
 @using System.Net.Http.Headers
 @inject StoreLocationService _StoreLocationService
-@*
-    Using OwningComponentBase ensures that the service and related services
-    that share its scope are disposed with the component.
-    Otherwise DbContext in StoreLocationService will live for the life of the
-    connection, which may be problematic if clients stay
-    connected for a long time.
-    We access StoreLocationService using Service
-*@
 @inherits OwningComponentBase<StoreLocationService>
 <h3>Store Administration</h3>
 
@@ -51,18 +43,23 @@
                     </Template>
                 </GridEditSettings>
                 <GridColumns>
-                    <GridColumn Field=@nameof(StoreLocations.Id) HeaderText="Id" IsPrimaryKey="true"
+                    <GridColumn Field=@nameof(StoreLocations.Id)
+                                HeaderText="Id" IsPrimaryKey="true"
                                 ValidationRules="@(new ValidationRules{ Number=true})" Width="50">
                     </GridColumn>
-                    <GridColumn Field=@nameof(StoreLocations.LocationName) HeaderText="Location Name"
+                    <GridColumn Field=@nameof(StoreLocations.LocationName)
+                                HeaderText="Location Name"
                                 ValidationRules="@(new ValidationRules{ Required=true})" Width="150">
                     </GridColumn>
-                    <GridColumn Field=@nameof(StoreLocations.LocationAddress) HeaderText="Address"
+                    <GridColumn Field=@nameof(StoreLocations.LocationAddress)
+                                HeaderText="Address"
                                 ValidationRules="@(new ValidationRules{ Required=true})">
                     </GridColumn>
-                    <GridColumn Field=@nameof(StoreLocations.LocationLatitude) HeaderText="Latitude" Width="150">
+                    <GridColumn Field=@nameof(StoreLocations.LocationLatitude)
+                                HeaderText="Latitude" Width="150">
                     </GridColumn>
-                    <GridColumn Field=@nameof(StoreLocations.LocationLongitude) HeaderText="Longitude" Width="150">
+                    <GridColumn Field=@nameof(StoreLocations.LocationLongitude)
+                                HeaderText="Longitude" Width="150">
                     </GridColumn>
                 </GridColumns>
             </SfGrid>
@@ -71,8 +68,11 @@
 </div>
 
 @code {
-    List<StoreLocations> storelocations = new List<StoreLocations>();
-    private DialogSettings DialogParams = new DialogSettings { MinHeight = "250px", Width = "450px" };
+    List<StoreLocations> storelocations =
+    new List<StoreLocations>();
+
+    private DialogSettings DialogParams =
+    new DialogSettings { MinHeight = "250px", Width = "450px" };
 
     protected override async Task OnInitializedAsync()
     {
@@ -80,7 +80,8 @@
         storelocations = await Service.GetStoreLocations();
     }
 
-    public async Task ActionBeginHandler(ActionEventArgs<StoreLocations> args)
+    public async Task ActionBeginHandler(
+        ActionEventArgs<StoreLocations> args)
     {
         if (args.RequestType.ToString() == "Save")
         {
@@ -102,13 +103,15 @@
     public async Task Save(StoreLocations store)
     {
         // Geocode address
-        Coordinate coordinate = await Service.GeocodeAddress(store.LocationAddress);
+        Coordinate coordinate =
+        await Service.GeocodeAddress(store.LocationAddress);
 
         // Create a new store location
         store.LocationLatitude = coordinate.Y.ToString();
         store.LocationLongitude = coordinate.X.ToString();
-        
-        // SRID 4326 (WGS 84) is the most standard in cartography and GPS systems
+
+        // SRID 4326 (WGS 84) is the most standard
+        // in cartography and GPS systems
         store.LocationData = new Point(coordinate) { SRID = 4326 };
 
         // Save a new store location

@@ -21,10 +21,11 @@ else
 
 @code {
     string PngImage = string.Empty;
-    bool isLoading = true;
-    protected GeolocationResult? CurrentPositionResult { get; set; }
     string Latitude = "";
     string Longitude = "";
+
+    bool isLoading = true;
+    protected GeolocationResult? CurrentPositionResult { get; set; }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -60,7 +61,8 @@ else
         }
     }
 
-    public async Task<string> GetTile()
+    public async Task<string>
+    GetTile()
     {
         String PngImage = "";
 
@@ -72,10 +74,13 @@ else
 
             client.DefaultRequestHeaders.Accept.Clear();
             // Pass the Azure Maps Client Id
-            client.DefaultRequestHeaders.Add("x-ms-client-id", AuthService.ClientId);
+            client.DefaultRequestHeaders.Add("x-ms-client-id",
+            AuthService.ClientId);
+
             // Pass the Access Token in the auth header
             client.DefaultRequestHeaders.Authorization =
-            new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", AccessToken);
+            new System.Net.Http.Headers
+            .AuthenticationHeaderValue("Bearer", AccessToken);
 
             // Build the URL
             StringBuilder sb = new StringBuilder();

@@ -12,7 +12,8 @@ namespace BlazorStoreFinder
         {
         }
 
-        public BlazorStoreFinderContext(DbContextOptions<BlazorStoreFinderContext> options)
+        public BlazorStoreFinderContext(
+            DbContextOptions<BlazorStoreFinderContext> options)
             : base(options)
         {
         }

@@ -6,10 +6,14 @@
 <AzureMap Id="map"
           CameraOptions="new CameraOptions { Zoom = 10 }"
           StyleOptions="new StyleOptions { ShowLogo = false }"
-          EventActivationFlags="MapEventActivationFlags.None().Enable(MapEventType.Ready)"
-          TrafficOptions="new AzureMapsControl.Components.Traffic.TrafficOptions {
-                            Incidents = false,
-                            Flow = AzureMapsControl.Components.Traffic.TrafficFlow.Relative }"
+          EventActivationFlags="MapEventActivationFlags.None()
+                                .Enable(MapEventType.Ready)"
+          TrafficOptions="new AzureMapsControl.Components.Traffic.TrafficOptions
+                            {
+                                Incidents = false,
+                                Flow = AzureMapsControl.Components.Traffic
+                                       .TrafficFlow.Relative
+                            }"
           OnReady="OnMapReadyAsync" />
 @code {
     MapEventArgs? myMap;
@@ -18,7 +22,7 @@
     public async Task OnMapReadyAsync(MapEventArgs eventArgs)
     {
         myMap = eventArgs;
-        
+
         // Get current location
         // will cause a popup to show to ask permission
         CurrentPositionResult = await GeolocationService.GetCurrentPosition();
@@ -38,7 +42,10 @@
                 await eventArgs.Map.SetCameraOptionsAsync(
                     options => options.Center =
                     new AzureMapsControl.Components.Atlas.Position
-                    (Convert.ToDouble(CurrentLongitude), Convert.ToDouble(CurrentLatitude)));
+                    (
+                        Convert.ToDouble(CurrentLongitude),
+                        Convert.ToDouble(CurrentLatitude)
+                    ));
             }
         }
     }
@@ -48,7 +55,8 @@
         if (myMap != null)
         {
             // Enable Traffic and set options
-            await myMap.Map.SetTrafficOptionsAsync(options => options.Incidents = true);
+            await myMap.Map
+            .SetTrafficOptionsAsync(options => options.Incidents = true);
         }
     }
 }
