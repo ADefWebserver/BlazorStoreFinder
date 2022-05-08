@@ -20,7 +20,8 @@ namespace BlazorStoreFinder
         }
         public async Task<List<StoreLocations>> GetStoreLocations()
         {
-            return await _context.StoreLocations.OrderBy(x => x.Id).ToListAsync();
+            return await
+                _context.StoreLocations.OrderBy(x => x.Id).ToListAsync();
         }
 
         public async Task<StoreLocations> GetStoreLocation(int id)
@@ -28,7 +29,8 @@ namespace BlazorStoreFinder
             return await _context.StoreLocations.FindAsync(id);
         }
 
-        public async Task<StoreLocations> AddStoreLocation(StoreLocations storeLocation)
+        public async Task<StoreLocations> AddStoreLocation
+            (StoreLocations storeLocation)
         {
             _context.StoreLocations.Add(storeLocation);
             await _context.SaveChangesAsync();
@@ -37,69 +39,12 @@ namespace BlazorStoreFinder
 
         public async Task DeleteStoreLocation(int id)
         {
-            var storeLocation = await _context.StoreLocations.FindAsync(id);
+            var storeLocation =
+                await _context.StoreLocations.FindAsync(id);
+
             _context.StoreLocations.Remove(storeLocation);
             await _context.SaveChangesAsync();
         }
-
-        public List<StoreSearchResult> GetNearbyStoreLocations(Coordinate paramCoordinate)
-        {
-            List<StoreSearchResult> colStoreLocations = new List<StoreSearchResult>();
-
-            // Using a raw SQL query because sometimes NetTopologySuite
-            // cannot properly translate a query
-
-            StringBuilder sb = new StringBuilder();
-
-            // Set Distance to 25 miles
-            sb.Append("declare @Distance as int = 25 ");
-            // Declare the Coordinate
-            sb.Append($"declare @Latitude as nvarchar(250) = '{paramCoordinate.Y}' ");
-            sb.Append($"declare @Longitude as nvarchar(250) = '{paramCoordinate.X}' ");
-            // Declare the Geography
-            sb.Append("declare @location sys.geography ");
-            sb.Append(" ");
-            // Set the Geography to the Coordinate
-            sb.Append("set @location = ");
-            sb.Append("geography::STPointFromText('POINT(' + @Longitude + ' ' + @Latitude + ')', 4326) ");
-            sb.Append(" ");
-            // Search for Store Locations within the distance
-            sb.Append("SELECT ");
-            sb.Append("[LocationName], ");
-            sb.Append("[LocationAddress], ");
-            sb.Append("[LocationLatitude], ");
-            sb.Append("[LocationLongitude], ");
-            sb.Append("[LocationData].STDistance(@location) / 1609.3440000000001E0 AS [DistanceInMiles] ");
-            sb.Append("FROM [StoreLocations] ");
-            sb.Append("where [LocationData].STDistance(@location) / 1609.3440000000001E0 < @Distance ");
-            sb.Append("order by [LocationData].STDistance(@location) / 1609.3440000000001E0 ");
-
-            using (SqlConnection connection =
-            new SqlConnection(_context.Database.GetConnectionString()))
-            {
-                SqlCommand command = new SqlCommand(sb.ToString(), connection);
-                connection.Open();
-                SqlDataReader reader = command.ExecuteReader();
-                
-                while (reader.Read())
-                {
-                    colStoreLocations.Add(new StoreSearchResult
-                    {
-                        LocationName = reader["LocationName"].ToString(),
-                        LocationAddress = reader["LocationAddress"].ToString(),
-                        LocationLatitude = Convert.ToDouble(reader["LocationLatitude"]),
-                        LocationLongitude = Convert.ToDouble(reader["LocationLongitude"]),
-                        Distance = double.Parse(reader["DistanceInMiles"].ToString())
-                    });
-                }       
-                
-                reader.Close();
-            }
-
-            return colStoreLocations;
-        }
-
-        // Geocode
 
         public async Task<Coordinate> GeocodeAddress(string address)
         {
@@ -123,10 +68,12 @@ namespace BlazorStoreFinder
                     new MediaTypeWithQualityHeaderValue("application/json"));
 
                 // Pass the Azure Maps Client Id
-                client.DefaultRequestHeaders.Add("x-ms-client-id", AuthService.ClientId);
+                client.DefaultRequestHeaders.Add("x-ms-client-id",
+                    AuthService.ClientId);
                 // Pass the Access Token in the auth header
                 client.DefaultRequestHeaders.Authorization =
-                new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", AccessToken);
+                new System.Net.Http.Headers.AuthenticationHeaderValue(
+                    "Bearer", AccessToken);
 
                 // Build the URL
                 StringBuilder sb = new StringBuilder();
@@ -146,18 +93,23 @@ namespace BlazorStoreFinder
 
                 // Read the response
                 var responseContent = await Response.Content.ReadAsStringAsync();
-                var AddressResult = JsonConvert.DeserializeObject<SearchAddressResult>(responseContent);
+                var AddressResult =
+                    JsonConvert.DeserializeObject<SearchAddressResult>(
+                        responseContent);
 
                 // Create coordinate
                 coordinate = new Coordinate(
-                    Convert.ToDouble(AddressResult.results.FirstOrDefault()?.position.lon),
-                    Convert.ToDouble(AddressResult.results.FirstOrDefault()?.position.lat));
+                    Convert.ToDouble(
+                        AddressResult.results.FirstOrDefault()?.position.lon),
+                    Convert.ToDouble(
+                        AddressResult.results.FirstOrDefault()?.position.lat));
             }
 
             return coordinate;
         }
 
-        public async Task<SearchAddressResultReverse> GeocodeReverse(Coordinate paramCoordinate)
+        public async Task<SearchAddressResultReverse>
+            GeocodeReverse(Coordinate paramCoordinate)
         {
             SearchAddressResultReverse result = new SearchAddressResultReverse();
 
@@ -175,16 +127,20 @@ namespace BlazorStoreFinder
                     new MediaTypeWithQualityHeaderValue("application/json"));
 
                 // Pass the Azure Maps Client Id
-                client.DefaultRequestHeaders.Add("x-ms-client-id", AuthService.ClientId);
+                client.DefaultRequestHeaders.Add(
+                    "x-ms-client-id", AuthService.ClientId);
+
                 // Pass the Access Token in the auth header
                 client.DefaultRequestHeaders.Authorization =
-                new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", AccessToken);
+                new System.Net.Http.Headers.AuthenticationHeaderValue(
+                    "Bearer", AccessToken);
 
                 // Build the URL
                 StringBuilder sb = new StringBuilder();
 
                 // Request a address search
-                sb.Append("https://atlas.microsoft.com/search/address/reverse/json?");
+                sb.Append(
+                    "https://atlas.microsoft.com/search/address/reverse/json?");
                 // Specify the api version and language
                 sb.Append("api-version=1.0");
                 // Pass latitude
@@ -199,11 +155,89 @@ namespace BlazorStoreFinder
                 var Response = await client.GetAsync(url);
 
                 // Read the response
-                var responseContent = await Response.Content.ReadAsStringAsync();
-                result = JsonConvert.DeserializeObject<SearchAddressResultReverse>(responseContent);
+                var responseContent =
+                    await Response.Content.ReadAsStringAsync();
+
+                result =
+                    JsonConvert.DeserializeObject<SearchAddressResultReverse>(
+                        responseContent);
             }
 
             return result;
+        }
+
+        public List<StoreSearchResult> GetNearbyStoreLocations(
+            Coordinate paramCoordinate)
+        {
+            List<StoreSearchResult> colStoreLocations =
+                new List<StoreSearchResult>();
+
+            // Using a raw SQL query because sometimes NetTopologySuite
+            // cannot properly translate a query
+
+            StringBuilder sb = new StringBuilder();
+
+            // Set Distance to 25 miles
+            sb.Append("declare @Distance as int = 25 ");
+            // Declare the Coordinate
+            sb.Append($"declare @Latitude as nvarchar(250) = ");
+            sb.Append($"'{paramCoordinate.Y}' ");
+            sb.Append($"declare @Longitude as nvarchar(250) = ");
+            sb.Append($"'{paramCoordinate.X}' ");
+            // Declare the Geography
+            sb.Append("declare @location sys.geography ");
+            sb.Append(" ");
+            // Set the Geography to the Coordinate
+            sb.Append("set @location = ");
+            sb.Append("geography::STPointFromText('POINT");
+            sb.Append("(' + @Longitude + ' ' + @Latitude + ')', 4326) ");
+            sb.Append(" ");
+            // Search for Store Locations within the distance
+            sb.Append("SELECT ");
+            sb.Append("[LocationName], ");
+            sb.Append("[LocationAddress], ");
+            sb.Append("[LocationLatitude], ");
+            sb.Append("[LocationLongitude], ");
+            sb.Append("[LocationData].STDistance(@location) ");
+            sb.Append("/ 1609.3440000000001E0 AS [DistanceInMiles] ");
+            sb.Append("FROM [StoreLocations] ");
+            sb.Append("where [LocationData].STDistance(@location) ");
+            sb.Append("/ 1609.3440000000001E0 < @Distance ");
+            sb.Append("order by [LocationData].STDistance(@location) ");
+            sb.Append("/ 1609.3440000000001E0 ");
+
+            using (SqlConnection connection =
+            new SqlConnection(_context.Database.GetConnectionString()))
+            {
+                SqlCommand command = new SqlCommand(sb.ToString(), connection);
+                connection.Open();
+                SqlDataReader reader = command.ExecuteReader();
+
+                while (reader.Read())
+                {
+                    colStoreLocations.Add(new StoreSearchResult
+                    {
+                        LocationName =
+                        reader["LocationName"].ToString(),
+
+                        LocationAddress =
+                        reader["LocationAddress"].ToString(),
+
+                        LocationLatitude =
+                        Convert.ToDouble(reader["LocationLatitude"]),
+
+                        LocationLongitude =
+                        Convert.ToDouble(reader["LocationLongitude"]),
+
+                        Distance =
+                        double.Parse(reader["DistanceInMiles"].ToString())
+                    });
+                }
+
+                reader.Close();
+            }
+
+            return colStoreLocations;
         }
     }
 }

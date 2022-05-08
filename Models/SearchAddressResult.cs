@@ -82,4 +82,5 @@ namespace BlazorStoreFinder.Result
         public float lat { get; set; }
         public float lon { get; set; }
     }
+
 }

@@ -1,6 +1,7 @@
 ﻿#nullable disable
 namespace BlazorStoreFinder.Reverse
 {
+
     public class SearchAddressResultReverse
     {
         public Summary summary { get; set; }

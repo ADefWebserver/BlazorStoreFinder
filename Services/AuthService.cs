@@ -5,8 +5,12 @@ namespace BlazorStoreFinder
 {
     public static class AuthService
     {
-        private const string AuthorityFormat = "https://login.microsoftonline.com/{0}/oauth2/v2.0";
-        private const string MSGraphScope = "https://atlas.microsoft.com/.default";
+        private const string AuthorityFormat = 
+            "https://login.microsoftonline.com/{0}/oauth2/v2.0";
+        
+        private const string MSGraphScope = 
+            "https://atlas.microsoft.com/.default";
+        
         public static string? ClientId;
         public static string? AadTenant;
         public static string? AadAppId;
@@ -28,7 +32,8 @@ namespace BlazorStoreFinder
             IConfidentialClientApplication daemonClient;
 
             // Create a builder for the confidential client
-            daemonClient = ConfidentialClientApplicationBuilder.Create(AadAppId)
+            daemonClient = ConfidentialClientApplicationBuilder
+                .Create(AadAppId)
                 .WithAuthority(string.Format(AuthorityFormat, AadTenant))
                 .WithClientSecret(AppKey)
                 .Build();
