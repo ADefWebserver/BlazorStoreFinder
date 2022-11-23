@@ -15,5 +15,8 @@
 ## Links
 [Creating Azure Maps Applications In Blazor](https://blazorhelpwebsite.com/ViewBlogPost/59)
 
+[Interview with Azure Maps Using Blazor Succinctly Author Michael Washington](https://www.syncfusion.com/blogs/post/interview-with-azure-maps-using-blazor-succinctly-author-michael-washington.aspx)
+
+[Video: Creating Business Applications Using Azure Maps | .NET Conf 2022](https://www.youtube.com/watch?v=WPRVLKyklVQ)
 ## E-Book - [Azure Maps Using Blazor Succinctly](https://www.syncfusion.com/succinctly-free-ebooks/azure-maps-using-blazor-succinctly) 
 ![SyncfusionBook](https://user-images.githubusercontent.com/1857799/202549845-2dca8109-ab2f-47de-89bb-b05a088c683c.png)
